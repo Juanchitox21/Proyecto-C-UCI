@@ -12,7 +12,8 @@ int main() {
 char opcion;
 ArchivoConfig config;
 ArchivoPacientes pacientes;
-SalaUCI* Datos;
+pacientes.pacientes=nullptr;
+SalaUCI* Datos=nullptr;
 char nombreArchivo[]="patient_readings_simulation_tiny.bsf";
 do {
     
@@ -22,14 +23,28 @@ do {
 
     switch (opcion) {
         case '1':
+        if(pacientes.pacientes == nullptr){
             cout << "Cargar archivo de configuración y datos de pacientes." << endl;
             config = Leer_archivo_configuracion("configuracion.txt");
             pacientes = Leer_archivo_pacientes("pacientes_small.csv");
             cout << "Archivos cargados exitosamente." << endl;
+    }else{
+        cout<<"Los archivos ya han sido cargados"<<endl;
+    }
             break;
         case '2':
+        if(Datos == nullptr){
             cout << "Leer archivo .bsf." << endl;
             Datos=Leer_archivo_binario(nombreArchivo);
+            if(Datos != nullptr)
+            {
+                cout<<"Lectura exitosa del archivo binario"<<endl;
+            }else{
+                cout<<"Error al leer el archivo"<<endl;
+            }
+        }else{
+            cout<<"El archivo ya ha sido leido"<<endl;
+        }
             break;
         
         case '3':
@@ -41,18 +56,61 @@ do {
                  }
                  generar_reportes_de_anomalias(Datos, config);
                  Generar_archivo_binario_anomalias_ECG(Datos, config);
+                 cout<<"Los reportes han sido creados correctamente"<<endl;
              } else {
                  cout << "Error al leer el archivo binario." << endl;
              }
             break;
         case '4':{
             cout << "Calcular estadísticas." << endl;
-                    Calcular_estadisticas_sensor(Datos);
+                        if(Datos != nullptr) {
+                    cout << "=== Estadísticas por máquina ===" << endl;
+                    for (int i = 0; i < Datos->numero_maquinas; i++) {
+                        cout << "Máquina " << (int)Datos->maquinas[i].id << endl;
+                        for (int j = 0; j < Datos->maquinas[i].numero_mediciones; j++) {
+                            for (int k = 0; k < Datos->maquinas[i].mediciones[j].numero_lecturas; k++) {
+                                cout << "Paciente " << Datos->maquinas[i].mediciones[j].id_paciente 
+                                    << " Sensor " << Datos->maquinas[i].mediciones[j].lecturas[k].tipo
+                                    << " Valor: " << Datos->maquinas[i].mediciones[j].lecturas[k].valor[0];
+                                if (Datos->maquinas[i].mediciones[j].lecturas[k].tipo== 'P') {
+                                    cout << " / " << Datos->maquinas[i].mediciones[j].lecturas[k].valor[1];
+                                }
+                                cout << endl;
+                            }
+                        }
+                    }
+                }
+            
+}
                 break;
-            }
+            
         case '5':{
             cout << "Exportar datos procesados." << endl;
-                    Exportar_datos_procesados(Datos);
+if(Datos != nullptr) {
+                    ofstream out("exportados.csv");
+                    if (!out.is_open()) {
+                        cerr << "No se pudo abrir el archivo para exportar." << endl;
+                    } else {
+                        out << "ID_Maquina,ID_Paciente,Fecha,Sensor,Valor1,Valor2\n";
+                        for (int i = 0; i < Datos->numero_maquinas; i++) {
+                            for (int j = 0; j < Datos->maquinas[i].numero_mediciones; j++) {
+                                for (int k = 0; k < Datos->maquinas[i].mediciones[j].numero_lecturas; k++) {
+                                    out << (int)Datos->maquinas[i].id << ","
+                                        << Datos->maquinas[i].mediciones[j].id_paciente << ","
+                                        << Datos->maquinas[i].mediciones[j].fecha_hora << ","
+                                        << Datos->maquinas[i].mediciones[j].lecturas[k].tipo << ","
+                                        << Datos->maquinas[i].mediciones[j].lecturas[k].valor[0] << ",";
+                                    if (Datos->maquinas[i].mediciones[j].lecturas[k].tipo == 'P') out << Datos->maquinas[i].mediciones[j].lecturas[k].valor[1];
+                                    out << "\n";
+                                }
+                            }
+                        }
+                        out.close();
+                        cout << "Datos exportados en: exportados.csv" << endl;
+                    }
+                    
+                }
+
             break;
         }
         case '6':

@@ -317,7 +317,7 @@ void Generar_reporte_paciente(const MaquinaUCI &maquina, const ArchivoConfig & c
 	int NumTipos = 0;
 
 	for (int i = 0; i < maquina.numero_mediciones; i++) {
-		const Medicion &m = maquina.mediciones[i];
+		    Medicion &m = maquina.mediciones[i];
 		for (int j = 0; j < m.numero_lecturas; j++) {
 			char t = m.lecturas[j].tipo;
 			bool existe = false;
@@ -335,21 +335,21 @@ void Generar_reporte_paciente(const MaquinaUCI &maquina, const ArchivoConfig & c
 			}
 		}
 	}
-
+        char** fechas= new char*[1];
+        fechas[0]=new char[24];
+		double* valores= new double[1];
+		int n = 0;
 	for(int s = 0; s < NumTipos; s++) {
 		char sensor = tipos[s];
 		archivo << "Sensor:" << sensor << endl;
 
     suma =0.0;
-		char** fechas= new char*[1];
-        fechas[0]=new char[24];
-		double* valores= new double[1];
-		int n = 0;
+		
 
 		for(int i = 0; i < maquina.numero_mediciones; i++) {
-			const Medicion &m = maquina.mediciones[i];
+			    Medicion &m = maquina.mediciones[i];
 			for (int j = 0; j < m.numero_lecturas; j++) {
-				const Lectura &lectura = m.lecturas[j];
+				    Lectura &lectura = m.lecturas[j];
 				if(lectura.tipo == sensor) {
 					strcpy(fechas[n], m.fecha_hora);
 					valores[n] = lectura.valor[0];
@@ -359,7 +359,7 @@ void Generar_reporte_paciente(const MaquinaUCI &maquina, const ArchivoConfig & c
 				}
 			}
 		}
-
+        //ORDENAR CRONOLOGICAMENTE
 		for(int a = 0; a < n; a++) {
 			for(int b = 0; b < n - 1 - a; b++) {
 				if(Comparar_fechas(fechas[b], fechas[b + 1])) {
@@ -406,9 +406,11 @@ void Generar_reporte_paciente(const MaquinaUCI &maquina, const ArchivoConfig & c
 			archivo << "Minimo: " << minvalor << endl;
 			archivo << "Maximo: " << Maxvalor << endl;
 			archivo << "Promedio: " << promedio << endl << endl;
-
+ 
 		}
 		archivo.close();
+                Limpiar_apuntador_char(fechas, n);
+                delete[] valores;
 		cout << "Reporte generado: " << nombreArchivo << endl;
 	}
 SalaUCI* Leer_archivo_binario(char nombreArchivo[])
@@ -451,6 +453,7 @@ SalaUCI* Leer_archivo_binario(char nombreArchivo[])
         }
     }
     archivo_sala.close();
+
     return sala;
 }
 void Limpiar_apuntador(SalaUCI* sala) 
@@ -526,24 +529,38 @@ void Generar_archivo_binario_anomalias_ECG(SalaUCI* &Sala, ArchivoConfig &config
         cerr << "Error creating binary file: pacientes_ecg_anomalos.dat" << endl;
         return;
     }
-    for(int i = 0 ; i < Sala->numero_maquinas ; i++)
-        for(int j = 0 ; j < Sala->maquinas[i].numero_mediciones ; j++)
-          for(int k = 0 ; k < Sala->maquinas[i].mediciones[j].numero_lecturas ; k++)
-            if(Sala->maquinas[i].mediciones[j].lecturas[k].tipo == 'E') {
-              if(Es_anomalia_ECG(Sala->maquinas[i].mediciones[j],config)==true)
-              {
-                archivo_ECG_anomalo.write((char*)&Sala->maquinas[i].mediciones[j].id_paciente, sizeof(Sala->maquinas[i].mediciones[j].id_paciente));
-                archivo_ECG_anomalo.write((char*)&Sala->maquinas[i].id, sizeof(Sala->maquinas[i].id));
-                archivo_ECG_anomalo.write((char*)&Sala->maquinas[i].mediciones[j].numero_lecturas, sizeof(Sala->maquinas[i].mediciones[j].numero_lecturas));
-                for(int l = 0 ; l < Sala->maquinas[i].mediciones[j].numero_lecturas ; l++)
-                {
-                archivo_ECG_anomalo.write((char*)&Sala->maquinas[i].mediciones[j].fecha_hora, sizeof(Sala->maquinas[i].mediciones[j].fecha_hora));
-                archivo_ECG_anomalo.write((char*)&Sala->maquinas[i].mediciones[j].lecturas[k].valor[0], sizeof(Sala->maquinas[i].mediciones[j].lecturas[k].valor[0]));
+    for (int i = 0; i < Sala->numero_maquinas; i++) {
+        for (int j = 0; j < Sala->maquinas[i].numero_mediciones; j++) {
+            Medicion &m = Sala->maquinas[i].mediciones[j];
+
+            if (Es_anomalia_ECG(Sala->maquinas[i].mediciones[j], config)) {
+
+                int numECG = 0;
+                for (int k = 0; k < Sala->maquinas[i].mediciones[j].numero_lecturas; k++) {
+                    if (Sala->maquinas[i].mediciones[j].lecturas[k].tipo == 'E') {
+                        numECG++;
+                    }
                 }
-              }
+
+                char idPaciente[11] = {0};
+                strncpy(idPaciente, Sala->maquinas[i].mediciones[j].id_paciente, 10);
+                archivo_ECG_anomalo.write(reinterpret_cast<char*>(idPaciente), 11);
+
+                archivo_ECG_anomalo.write(reinterpret_cast<char*>(&numECG), sizeof(int));
+
+                for (int k = 0; k < Sala->maquinas[i].mediciones[j].numero_lecturas; k++) {
+                    if (m.lecturas[k].tipo == 'E') {
+                        archivo_ECG_anomalo.write(reinterpret_cast<char*>(Sala->maquinas[i].mediciones[j].fecha_hora), 24);
+                        archivo_ECG_anomalo.write(reinterpret_cast<char*>(&Sala->maquinas[i].mediciones[j].lecturas[k].valor[0]), sizeof(double));
+                    }
+                }
             }
+        }
+    }
+
     archivo_ECG_anomalo.close();
 }
+
 void generar_reportes_de_anomalias(SalaUCI* &sala, const ArchivoConfig &config) {
     ofstream archivo("anomalias.txt");
     if (!archivo.is_open()) {
@@ -602,53 +619,4 @@ void generar_reportes_de_anomalias(SalaUCI* &sala, const ArchivoConfig &config) 
     }
 
     archivo.close();
-    cout << "El reporte de Anomalias ha sido generado en anomalias.txt" << endl;
-}
-void Calcular_estadisticas_sensor(SalaUCI* &Datos) {
-    if(Datos != nullptr) {
-                    cout << "=== Estadísticas por máquina ===" << endl;
-                    for (int i = 0; i < Datos->numero_maquinas; i++) {
-                        cout << "Máquina " << (int)Datos->maquinas[i].id << endl;
-                        for (int j = 0; j < Datos->maquinas[i].numero_mediciones; j++) {
-                            for (int k = 0; k < Datos->maquinas[i].mediciones[j].numero_lecturas; k++) {
-                                cout << "Paciente " << Datos->maquinas[i].mediciones[j].id_paciente 
-                                    << " Sensor " << Datos->maquinas[i].mediciones[j].lecturas[k].tipo
-                                    << " Valor: " << Datos->maquinas[i].mediciones[j].lecturas[k].valor[0];
-                                if (Datos->maquinas[i].mediciones[j].lecturas[k].tipo== 'P') {
-                                    cout << " / " << Datos->maquinas[i].mediciones[j].lecturas[k].valor[1];
-                                }
-                                cout << endl;
-                            }
-                        }
-                    }
-                }
-            
-}
-void Exportar_datos_procesados(SalaUCI* &Datos)
-{
-if(Datos != nullptr) {
-                    ofstream out("exportados.csv");
-                    if (!out.is_open()) {
-                        cerr << "No se pudo abrir el archivo para exportar." << endl;
-                    } else {
-                        out << "ID_Maquina,ID_Paciente,Fecha,Sensor,Valor1,Valor2\n";
-                        for (int i = 0; i < Datos->numero_maquinas; i++) {
-                            for (int j = 0; j < Datos->maquinas[i].numero_mediciones; j++) {
-                                for (int k = 0; k < Datos->maquinas[i].mediciones[j].numero_lecturas; k++) {
-                                    out << (int)Datos->maquinas[i].id << ","
-                                        << Datos->maquinas[i].mediciones[j].id_paciente << ","
-                                        << Datos->maquinas[i].mediciones[j].fecha_hora << ","
-                                        << Datos->maquinas[i].mediciones[j].lecturas[k].tipo << ","
-                                        << Datos->maquinas[i].mediciones[j].lecturas[k].valor[0] << ",";
-                                    if (Datos->maquinas[i].mediciones[j].lecturas[k].tipo == 'P') out << Datos->maquinas[i].mediciones[j].lecturas[k].valor[1];
-                                    out << "\n";
-                                }
-                            }
-                        }
-                        out.close();
-                        cout << "Datos exportados en: exportados.csv" << endl;
-                    }
-                    
-                }
-            
 }

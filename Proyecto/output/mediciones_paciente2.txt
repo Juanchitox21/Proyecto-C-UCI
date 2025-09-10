@@ -7,14 +7,19 @@ Maximo: 39.2
 Promedio: 39.1
 
 Sensor:P
+Fecha: 25/06/2025 01:12:20.080 valor: 39 Normal
 Fecha: 25/06/2025 01:12:20.080 valor: 150 Normal
-Minimo: 150
+Fecha: 25/06/2025 01:15:00.000 valor: 39.2 Normal
+Minimo: 39
 Maximo: 150
-Promedio: 150
+Promedio: 76.0667
 
 Sensor:O
+Fecha: 25/06/2025 01:12:20.080 valor: 39 Anomalia
+Fecha: 25/06/2025 01:12:20.080 valor: 150 Anomalia
+Fecha: 25/06/2025 01:15:00.000 valor: 39.2 Anomalia
 Fecha: 25/06/2025 01:15:00.000 valor: 92.5 Anomalia
-Minimo: 92.5
-Maximo: 92.5
-Promedio: 92.5
+Minimo: 39
+Maximo: 150
+Promedio: 80.175
 
