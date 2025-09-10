@@ -1,0 +1,25 @@
+Reporte de mediciones del paciente1
+Sensor:T
+Fecha: 25/06/2025 01:00:00.000 valor: 37.5 Normal
+Minimo: 37.5
+Maximo: 37.5
+Promedio: 37.5
+
+Sensor:P
+Fecha: 25/06/2025 01:00:00.000 valor: 120 Normal
+Minimo: 120
+Maximo: 120
+Promedio: 120
+
+Sensor:O
+Fecha: 25/06/2025 01:00:00.000 valor: 98 Normal
+Minimo: 98
+Maximo: 98
+Promedio: 98
+
+Sensor:E
+Fecha: 25/06/2025 01:00:00.000 valor: 3
+Minimo: 3
+Maximo: 3
+Promedio: 3
+

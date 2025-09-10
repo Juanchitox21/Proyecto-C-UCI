@@ -1,0 +1,25 @@
+Paciente id: 2
+Fecha y Hora: 25/06/2025 01:12:20.080
+Tipo de Sensor: Temperatura
+valor: 39
+Estado: Anomalia
+Paciente id: 2
+Fecha y Hora: 25/06/2025 01:12:20.080
+Tipo de Sensor: Presion Arterial Sistolica
+valor: 150
+Estado: Anomalia
+Paciente id: 2
+Fecha y Hora: 25/06/2025 01:12:20.080
+Tipo de Sensor: Presion Arterial Diastolica
+valor: 100
+Estado: Anomalia
+Paciente id: 1
+Fecha y Hora: 25/06/2025 01:15:00.000
+Tipo de Sensor: Temperatura
+valor: 39.2
+Estado: Anomalia
+Paciente id: 1
+Fecha y Hora: 25/06/2025 01:15:00.000
+Tipo de Sensor: Oximetria
+valor: 92.5
+Estado: Anomalia

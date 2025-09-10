@@ -1,0 +1,20 @@
+Reporte de mediciones del paciente2
+Sensor:T
+Fecha: 25/06/2025 01:12:20.080 valor: 39 Anomalia
+Fecha: 25/06/2025 01:15:00.000 valor: 39.2 Anomalia
+Minimo: 39
+Maximo: 39.2
+Promedio: 39.1
+
+Sensor:P
+Fecha: 25/06/2025 01:12:20.080 valor: 150 Normal
+Minimo: 150
+Maximo: 150
+Promedio: 150
+
+Sensor:O
+Fecha: 25/06/2025 01:15:00.000 valor: 92.5 Anomalia
+Minimo: 92.5
+Maximo: 92.5
+Promedio: 92.5
+
